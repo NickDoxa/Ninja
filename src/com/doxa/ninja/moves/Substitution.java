@@ -126,13 +126,12 @@ public class Substitution extends MoveBase implements Listener {
 			}
 		}
 	}
-	
-	@SuppressWarnings("deprecation")
+
 	@EventHandler
 	public void onItemHold(PlayerItemHeldEvent event) {
 		Player player = event.getPlayer();
 		try {
-			if (player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName())) {
+			if (player.getInventory().getItem(event.getNewSlot()).getItemMeta().getDisplayName().equals(getColorName())) {
 				if (msg_cd.get(player)) {
 					long timeleft = (sub_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Cooldown - " + timeleft));
