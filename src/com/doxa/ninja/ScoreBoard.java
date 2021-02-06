@@ -28,14 +28,22 @@ public class ScoreBoard implements Listener {
 		Objective obj = board.registerNewObjective("NinjaBoard", "dummy",
 				ChatColor.translateAlternateColorCodes('&', "&8&l| &6&lNinja &8&l|"));
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-		Score score = obj.getScore(ChatColor.DARK_GRAY + "-------------------");
-		score.setScore(2);
-		Score score2 = obj.getScore(ChatColor.AQUA + "Total Kills: " + ChatColor.DARK_AQUA + 
+		Score score_under = obj.getScore(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "_____________");
+		score_under.setScore(6);
+		Score score_blank1 = obj.getScore(ChatColor.DARK_GRAY + "");
+		score_blank1.setScore(5);
+		Score score_total = obj.getScore(ChatColor.AQUA + "" + ChatColor.BOLD + "Total Kills: " + ChatColor.DARK_AQUA + 
 				(player.getStatistic(Statistic.PLAYER_KILLS) + player.getStatistic(Statistic.MOB_KILLS)));
-		score2.setScore(1);
-		Score score3 = obj.getScore(ChatColor.AQUA + "Player Kills: " + ChatColor.DARK_AQUA + 
+		score_total.setScore(4);
+		Score score_player = obj.getScore(ChatColor.AQUA + "" + ChatColor.BOLD + "Player Kills: " + ChatColor.DARK_AQUA + 
 										player.getStatistic(Statistic.PLAYER_KILLS));
-		score3.setScore(0);
+		score_player.setScore(3);
+		Score score_blank = obj.getScore(ChatColor.DARK_GRAY + " ");
+		score_blank.setScore(2);
+		Score score_level = obj.getScore(ChatColor.AQUA + "" + ChatColor.BOLD + "Level: " /*Create rank getter method*/);
+		score_level.setScore(1);
+		Score score_blank2 = obj.getScore("");
+		score_blank2.setScore(0);
 		player.setScoreboard(board);
 	}
 	

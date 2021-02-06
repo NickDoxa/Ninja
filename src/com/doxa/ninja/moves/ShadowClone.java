@@ -128,6 +128,8 @@ public class ShadowClone extends MoveBase implements Listener {
 		}
 		List<Zombie> del_zombie_list = new ArrayList<Zombie>();
 		Zombie zombie = (Zombie) player.getWorld().spawnEntity(player.getLocation(), EntityType.ZOMBIE);
+		zombie.setAdult();
+		zombie.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
 		final Location location = zombie.getLocation();
 		zombie.getWorld().spawnParticle(Particle.SPIT, location.getX(), location.getY(), location.getZ(),
     			10);

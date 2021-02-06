@@ -107,6 +107,8 @@ public class Main extends JavaPlugin implements Listener {
 					chi.setActiveMap(online, false);
 					ras.setActiveMap(online, false);
 					med.setActiveMap(online, false);
+					bar.getBar(online).removeAll();
+					bar.createBar(online);
 				}
 		}
 		
