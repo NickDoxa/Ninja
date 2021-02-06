@@ -44,9 +44,9 @@ public class Substitution extends MoveBase implements Listener {
 	Map<Material, Location> block = new HashMap<Material, Location>();
 	Map<String, Long> sub_cd = new HashMap<String, Long>();
 	Map<Player, Boolean> msg_cd = new HashMap<Player, Boolean>();
-	private boolean cd;
 	@SuppressWarnings("deprecation")
 	public void createLog(Player player, int amt, int cd_amt) {
+		boolean cd = msg_cd.get(player) ? true : false;
 		if (sub_cd.containsKey(player.getName())) {
 			if (sub_cd.get(player.getName()) > System.currentTimeMillis()) {
 				long timeleft = (sub_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
@@ -56,7 +56,6 @@ public class Substitution extends MoveBase implements Listener {
 			}
 		}
 		sub_cd.put(player.getName(), System.currentTimeMillis() + (cd_amt * 1000));
-		cd = true;
 		msg_cd.put(player, true);
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         //CHECK FOR ONE TIME RUN
@@ -64,7 +63,6 @@ public class Substitution extends MoveBase implements Listener {
 	        scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 	            @Override
 	            public void run() {
-	            	cd = false;
 	            	msg_cd.put(player, false);
 	            }
 	        }, (cd_amt * 20));
@@ -95,7 +93,8 @@ public class Substitution extends MoveBase implements Listener {
 	            			10);
 	            }
 	        }, 100);
-		}}, 10);
+		  }
+	   }, 10);
 	}
 	
 	@EventHandler
@@ -114,13 +113,14 @@ public class Substitution extends MoveBase implements Listener {
 	public void onDamage(EntityDamageByEntityEvent event) {
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
+			boolean cd = msg_cd.get(player) ? true : false;
 			try {
 				if (player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName())) {
 					if (!cd) {
 						event.setCancelled(true);
+						createLog(player, 10, plugin.getCooldown(MoveType.SUBSTITUTION));
 					}
-					createLog(player, 10, plugin.getCooldown(MoveType.SUBSTITUTION));
-				}
+				}	
 			} catch (NullPointerException e) {
 				plugin.writeReport(e.toString(), "log creation");
 			}
