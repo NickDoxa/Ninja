@@ -2,16 +2,19 @@ prefix: '&8&l| &6&lNinja &8&l|'
 use-scoreboard: true
 cooldowns:
   kunai: 5
-  agility: 3
+  agility: 5
   substitution: 30
   chidori: 20
   rasengan: 20
   shadow-clone: 45
   meditate: 60
+  taijutsu: 10
 damage:
   chidori: 15.0
   rasengan: 10.0
   chakra-overload: 10.0
+  kunai: 3.0
+  taijutsu: 1.5
 shadow-clone:
   amt: 3
   use-invisibility: true

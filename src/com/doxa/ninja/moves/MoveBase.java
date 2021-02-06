@@ -34,6 +34,7 @@ public abstract class MoveBase {
 	private ItemStack base_item;
 	private String base_name;
 	private String color_name;
+	private String desc;
 	private MoveType move;
 	
 	public void setMoveType(MoveType m) {
@@ -64,6 +65,14 @@ public abstract class MoveBase {
 	
 	public ItemStack getItem() {
 		return base_item;
+	}
+	
+	public void setDescription(String s) {
+		desc = s;
+	}
+	
+	public String getDescription() {
+		return desc;
 	}
 	
 	public void createItem(Player player, String prefix) {

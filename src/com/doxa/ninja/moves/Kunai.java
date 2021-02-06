@@ -58,20 +58,20 @@ public class Kunai extends MoveBase implements Listener {
 		}
 		kunai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.KUNAI) * 1000));
 		Arrow arrow = player.launchProjectile(Arrow.class);
-		arrow.setDamage(3.0);
+		arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
 		shooter.add(arrow);
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				Arrow arrow = player.launchProjectile(Arrow.class);
-				arrow.setDamage(3.0);
+				arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
 				shooter.add(arrow);
 			}
 		}, 4);
 		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				Arrow arrow = player.launchProjectile(Arrow.class);
-				arrow.setDamage(3.0);
+				arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
 				shooter.add(arrow);
 			}
 		}, 8);

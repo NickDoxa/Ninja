@@ -121,10 +121,9 @@ public class ShadowClone extends MoveBase implements Listener {
 		return item;
 	}
 		
-	@SuppressWarnings("deprecation")
 	public void createClones(Player player) {
 		if (plugin.useInvisibility()) {
-			player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 3 * 20, 1));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 3 * 20, 1, true, false, false));
 		}
 		List<Zombie> del_zombie_list = new ArrayList<Zombie>();
 		Zombie zombie = (Zombie) player.getWorld().spawnEntity(player.getLocation(), EntityType.ZOMBIE);
@@ -139,7 +138,7 @@ public class ShadowClone extends MoveBase implements Listener {
 		zombie.getEquipment().setBoots(new ItemStack(Material.LEATHER_BOOTS, 1));
 		zombie.setCustomNameVisible(true);
 		zombie.setCustomName(player.getName());
-		zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 2), true);
+		zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 2, true, false, false));
 		del_zombie_list.add(zombie);
 		zombie_list.add(zombie);
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();

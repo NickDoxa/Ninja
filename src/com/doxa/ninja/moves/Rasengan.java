@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -88,7 +89,8 @@ public class Rasengan extends MoveBase implements Listener {
 			Active_Map.put(player, true);
 			plugin.useChakra(0.2, player);
 			plugin.chakraOverloadMain(player);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 3), true);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5 * 20, 3, true, false, false));
+			player.getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1, 1);
 			chakraBuild(player);
 			createRasengan(player);
 			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -147,6 +149,7 @@ public class Rasengan extends MoveBase implements Listener {
 			event.setDamage(damage);
 			if (entity instanceof Player) {
 				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1), true);
+				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}
 			final Location loc = entity.getLocation();
 			entity.getWorld().spawnParticle(Particle.SPIT, loc.getX(), loc.getY(), loc.getZ(),

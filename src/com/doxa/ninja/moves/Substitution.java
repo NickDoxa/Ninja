@@ -44,9 +44,11 @@ public class Substitution extends MoveBase implements Listener {
 	Map<Material, Location> block = new HashMap<Material, Location>();
 	Map<String, Long> sub_cd = new HashMap<String, Long>();
 	Map<Player, Boolean> msg_cd = new HashMap<Player, Boolean>();
-	@SuppressWarnings("deprecation")
+	public void setCD(Player p, boolean b) {
+		msg_cd.put(p, b);
+	}
+	
 	public void createLog(Player player, int amt, int cd_amt) {
-		boolean cd = msg_cd.get(player) ? true : false;
 		if (sub_cd.containsKey(player.getName())) {
 			if (sub_cd.get(player.getName()) > System.currentTimeMillis()) {
 				long timeleft = (sub_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
@@ -57,6 +59,7 @@ public class Substitution extends MoveBase implements Listener {
 		}
 		sub_cd.put(player.getName(), System.currentTimeMillis() + (cd_amt * 1000));
 		msg_cd.put(player, true);
+		boolean cd = msg_cd.get(player) ? true : false;
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         //CHECK FOR ONE TIME RUN
 		if (cd) {
@@ -69,7 +72,7 @@ public class Substitution extends MoveBase implements Listener {
 		}
 		final Location location = player.getLocation();
 		final Location location2 = new Location(player.getWorld(), location.getX(), (location.getY() + 1), location.getZ());
-		player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 3 * 20, 1), true);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 3 * 20, 1, true, false, false));
 		player.setVelocity(player.getLocation().getDirection().multiply(amt).setY(2));
 		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 			@Override

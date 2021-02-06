@@ -84,7 +84,7 @@ public class Meditate extends MoveBase implements Listener {
 			med_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.MEDITATE) * 1000));
 			Active_Map.put(player, true);
 			plugin.useChakra(0.2, player);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 2));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5 * 20, 2, true, false, false));
 			createMeditation(player);
 			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 			scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {

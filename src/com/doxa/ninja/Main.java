@@ -22,6 +22,7 @@ import com.doxa.ninja.moves.Meditate;
 import com.doxa.ninja.moves.Rasengan;
 import com.doxa.ninja.moves.ShadowClone;
 import com.doxa.ninja.moves.Substitution;
+import com.doxa.ninja.moves.Taijutsu;
 import com.doxa.ninja.moves.particles.Quit;
 
 public class Main extends JavaPlugin implements Listener {
@@ -39,6 +40,7 @@ public class Main extends JavaPlugin implements Listener {
 	public Rasengan ras;
 	public ShadowClone sc;
 	public Meditate med;
+	public Taijutsu tai;
 
 	//SCOREBOARD
 	public ScoreBoard scoreboard;
@@ -56,11 +58,14 @@ public class Main extends JavaPlugin implements Listener {
 	private int ras_cooldown_config;
 	private int clone_cooldown_config;
 	private int med_cooldown_config;
+	private int tai_cooldown_config;
 	
 	//DAMAGE VARIABLES
 	private double chidori_damage_config;
 	private double ras_damage_config;
 	private double chakra_damage_config;
+	private double kunai_damage_config;
+	private double tai_damage_config;
 	
 	//OTHER VARIABLES
 	private int clone_amt_config;
@@ -89,6 +94,7 @@ public class Main extends JavaPlugin implements Listener {
 		this.sc = new ShadowClone(this);
 		this.med = new Meditate(this);
 		this.bar = new Bar(this);
+		this.tai = new Taijutsu(this);
 		this.getCommand("ninja").setTabCompleter(new TabClass());
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getPluginManager().registerEvents(kunai, this);
@@ -98,20 +104,23 @@ public class Main extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(ras, this);
 		this.getServer().getPluginManager().registerEvents(sc, this);
 		this.getServer().getPluginManager().registerEvents(med, this);
+		this.getServer().getPluginManager().registerEvents(tai, this);
 		this.getServer().getPluginManager().registerEvents(new Quit(), this);
-		if (useBoard()) {
-			this.getServer().getPluginManager().registerEvents(scoreboard, this);
-			if (!Bukkit.getOnlinePlayers().isEmpty())
-				for (Player online : Bukkit.getOnlinePlayers()) {
-					scoreboard.createBoard(online);
-					chi.setActiveMap(online, false);
-					ras.setActiveMap(online, false);
-					med.setActiveMap(online, false);
-					bar.getBar(online).removeAll();
-					bar.createBar(online);
-				}
-		}
 		
+		this.getServer().getPluginManager().registerEvents(scoreboard, this);
+		if (!Bukkit.getOnlinePlayers().isEmpty())
+			for (Player online : Bukkit.getOnlinePlayers()) {
+				if (useBoard()) {
+					scoreboard.createBoard(online);
+				}
+				chi.setActiveMap(online, false);
+				ras.setActiveMap(online, false);
+				med.setActiveMap(online, false);
+				bar.getBar(online).removeAll();
+				bar.createBar(online);
+				sub.setCD(online, false);
+		}
+	
 		//BASE MOVES CREATION
 		kunai.createItemKunai();
 		sub.createItemSubstitution();
@@ -120,6 +129,7 @@ public class Main extends JavaPlugin implements Listener {
 		ras.createItemRas();
 		sc.createItemSC();
 		med.createItemMed();
+		tai.createItemTai();
 		
 		//GET CONFIG COOLDOWN
 		kunai_cooldown_config = getConfig().getInt("cooldowns.kunai");
@@ -129,11 +139,14 @@ public class Main extends JavaPlugin implements Listener {
 		ras_cooldown_config = getConfig().getInt("cooldowns.rasengan");
 		clone_cooldown_config = getConfig().getInt("cooldowns.shadow-clone");
 		med_cooldown_config = getConfig().getInt("cooldowns.meditate");
+		tai_cooldown_config = getConfig().getInt("cooldowns.taijutsu");
 		
 		//GET CONFIG DAMAGE
 		chidori_damage_config = getConfig().getDouble("damage.chidori");
 		ras_damage_config = getConfig().getDouble("damage.rasengan");
 		chakra_damage_config = getConfig().getDouble("damage.chakra-overload");
+		tai_damage_config = getConfig().getDouble("damage.taijutsu");
+		kunai_damage_config = getConfig().getDouble("damage.kunai");
 		
 		//GET CONFIG OTHERS
 		clone_amt_config = getConfig().getInt("shadow-clone.amt");
@@ -147,7 +160,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	
-	public enum MoveType{KUNAI, SUBSTITUTION, AGILITY, CHIDORI, RASENGAN, CLONE, MEDITATE, CHAKRA_OVERLOAD};
+	public enum MoveType{KUNAI, SUBSTITUTION, AGILITY, CHIDORI, RASENGAN, CLONE, MEDITATE, TAIJUTSU, CHAKRA_OVERLOAD};
 	//COOLDOWN RETURN
 	public int getCooldown(MoveType mt) {
 		if (mt.equals(MoveType.KUNAI)) {
@@ -164,6 +177,8 @@ public class Main extends JavaPlugin implements Listener {
 			return clone_cooldown_config;
 		} else if (mt.equals(MoveType.MEDITATE)) {
 			return med_cooldown_config;
+		} else if (mt.equals(MoveType.TAIJUTSU)) {
+			return tai_cooldown_config;
 		} else {
 			return -1;
 		}
@@ -176,6 +191,10 @@ public class Main extends JavaPlugin implements Listener {
 			return ras_damage_config;
 		} else if (mt.equals(MoveType.CHAKRA_OVERLOAD)) {
 			return chakra_damage_config;
+		} else if (mt.equals(MoveType.TAIJUTSU)) {
+			return tai_damage_config;
+		} else if (mt.equals(MoveType.KUNAI)) {
+			return kunai_damage_config;
 		} else {
 			return -1;
 		}
@@ -332,6 +351,7 @@ public class Main extends JavaPlugin implements Listener {
 		chi.setActiveMap(player, false);
 		ras.setActiveMap(player, false);
 		med.setActiveMap(player, false);
+		sub.setCD(player, false);
 	}
 	
 	@EventHandler

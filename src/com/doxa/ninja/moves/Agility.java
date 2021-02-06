@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,7 +51,7 @@ public class Agility extends MoveBase implements Listener {
 			double post = event.getTo().getY();
 			double pre = event.getFrom().getY();
 			boolean block_check = post > pre  ? true : false;
-			PotionEffect ninja_speed = new PotionEffect(PotionEffectType.SPEED, 1000000, 2);
+			PotionEffect ninja_speed = new PotionEffect(PotionEffectType.SPEED, 1000000, 2, true, false, false);
 			player.addPotionEffect(ninja_speed, true);
 			if (block_check && player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR) {
 				Vector vec = new Vector(0, 1, 0);
@@ -85,7 +86,7 @@ public class Agility extends MoveBase implements Listener {
 			ag_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.AGILITY) * 1000));
 			Vector vec = player.getEyeLocation().getDirection();
 			player.setVelocity(new Vector(vec.getX() * 2, vec.getY(), vec.getZ() * 2));
-			
+			player.getWorld().playSound(player.getLocation(), Sound.ENTITY_DOLPHIN_JUMP, 1, 1);
 		}
 	}
 	

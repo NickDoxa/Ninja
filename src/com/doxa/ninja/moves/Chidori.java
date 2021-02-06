@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -73,8 +74,6 @@ public class Chidori extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-
-			particles.put(player, new ParticleData(player.getUniqueId()));
 			if (chi_cd.containsKey(player.getName())) {
 				if (chi_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (chi_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
@@ -84,10 +83,12 @@ public class Chidori extends MoveBase implements Listener {
 				}
 			}
 			chi_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.CHIDORI) * 1000));
+			particles.put(player, new ParticleData(player.getUniqueId()));
 			Active_Map.put(player, true);
 			plugin.useChakra(0.2, player);
 			plugin.chakraOverloadMain(player);
-			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, (5 * 20), 3), true);
+			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, (5 * 20), 3, true, false, false));
+			player.getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1, 1);
 			chakraBuild(player);
 			createChidori(player);
 			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -145,7 +146,8 @@ public class Chidori extends MoveBase implements Listener {
 			double damage = plugin.getDamage(MoveType.CHIDORI) + (chakraDamage.get(player)/2);
 			event.setDamage(damage);
 			if (entity instanceof Player) {
-				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1), true);
+				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1, true, false, false));
+				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}
 			final Location loc = entity.getLocation();
 			entity.getWorld().spawnParticle(Particle.SPELL_INSTANT, loc.getX(), loc.getY(), loc.getZ(),
