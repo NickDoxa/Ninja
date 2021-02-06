@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -42,6 +43,7 @@ public class Substitution extends MoveBase implements Listener {
 	
 	Map<Material, Location> block = new HashMap<Material, Location>();
 	Map<String, Long> sub_cd = new HashMap<String, Long>();
+	Map<Player, Boolean> msg_cd = new HashMap<Player, Boolean>();
 	private boolean cd;
 	@SuppressWarnings("deprecation")
 	public void createLog(Player player, int amt, int cd_amt) {
@@ -55,6 +57,7 @@ public class Substitution extends MoveBase implements Listener {
 		}
 		sub_cd.put(player.getName(), System.currentTimeMillis() + (cd_amt * 1000));
 		cd = true;
+		msg_cd.put(player, true);
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         //CHECK FOR ONE TIME RUN
 		if (cd) {
@@ -62,6 +65,7 @@ public class Substitution extends MoveBase implements Listener {
 	            @Override
 	            public void run() {
 	            	cd = false;
+	            	msg_cd.put(player, false);
 	            }
 	        }, (cd_amt * 20));
 		}
@@ -120,6 +124,15 @@ public class Substitution extends MoveBase implements Listener {
 			} catch (NullPointerException e) {
 				plugin.writeReport(e.toString(), "log creation");
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onItemHold(PlayerItemHeldEvent event) {
+		Player player = event.getPlayer();
+		if (msg_cd.get(player)) {
+			long timeleft = (sub_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("Cooldown - " + timeleft));
 		}
 	}
 }
