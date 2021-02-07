@@ -54,7 +54,9 @@ public class Kunai extends MoveBase implements Listener {
 	Map<String, Long> kunai_cd = new HashMap<String, Long>();
 	Map<String, Long> kunai_exp_cd = new HashMap<String, Long>();
 
+	//Regular kunai list
 	List<Arrow> shooter = new ArrayList<Arrow>();
+	//Explosive kunai list
 	List<Arrow> explosive = new ArrayList<Arrow>();
 	
 	//PARTICLES
