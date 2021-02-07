@@ -8,12 +8,17 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -35,6 +40,9 @@ public class Kunai extends MoveBase implements Listener {
 		setName("Kunai", ChatColor.RED + "" + ChatColor.BOLD + "Kunai");
 		setItem(Material.WOODEN_SWORD);
 		setMoveType(MoveType.KUNAI);
+		setDescription("The Kunai is a key tool in a ninjas arsenal. Used to throw or for hand to hand combat,"
+				+ " the kunai is very versatile. To use: right click to throw, "
+				+ "or left click an opponent to strike, or shift right click to throw an explosive arrow!");
 	}
 	
 	public void createKunai(Player player, String prefix) {
@@ -44,37 +52,65 @@ public class Kunai extends MoveBase implements Listener {
 	
 	//COOLDOWN MAP
 	Map<String, Long> kunai_cd = new HashMap<String, Long>();
+	Map<String, Long> kunai_exp_cd = new HashMap<String, Long>();
 
 	List<Arrow> shooter = new ArrayList<Arrow>();
+	List<Arrow> explosive = new ArrayList<Arrow>();
+	
+	//PARTICLES
+	Map<Arrow, Integer> taskID = new HashMap<Arrow, Integer>();
 	
 	public void throwKunai(Player player) {
-		if (kunai_cd.containsKey(player.getName())) {
-			if (kunai_cd.get(player.getName()) > System.currentTimeMillis()) {
-				long timeleft = (kunai_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
-				player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-						new TextComponent(ChatColor.RED + "Cannot throw for " + timeleft + " seconds"));
-				return;
+		if (player.isSneaking()) {
+			if (kunai_exp_cd.containsKey(player.getName())) {
+				if (kunai_exp_cd.get(player.getName()) > System.currentTimeMillis()) {
+					long timeleft = (kunai_exp_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
+					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
+							new TextComponent(ChatColor.RED + "Cannot throw explosive kunai for " + timeleft + " seconds"));
+					return;
+				}
 			}
+			kunai_exp_cd.put(player.getName(), System.currentTimeMillis() + ((plugin.getCooldown(MoveType.KUNAI) * 1000)*3));
+			Arrow arrow = player.launchProjectile(Arrow.class);
+			arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
+			explosive.add(arrow);
+			int task;
+			task = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+				public void run() {
+					arrow.getWorld().spawnParticle(Particle.DRIP_LAVA, arrow.getLocation(), 1);
+				}
+				
+			},0, 1);
+			taskID.put(arrow, task);
+		} else {
+			if (kunai_cd.containsKey(player.getName())) {
+				if (kunai_cd.get(player.getName()) > System.currentTimeMillis()) {
+					long timeleft = (kunai_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
+					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
+							new TextComponent(ChatColor.RED + "Cannot throw for " + timeleft + " seconds"));
+					return;
+				}
+			}
+			kunai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.KUNAI) * 1000));
+			Arrow arrow = player.launchProjectile(Arrow.class);
+			arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
+			shooter.add(arrow);
+			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+			scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					Arrow arrow = player.launchProjectile(Arrow.class);
+					arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
+					shooter.add(arrow);
+				}
+			}, 4);
+			scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					Arrow arrow = player.launchProjectile(Arrow.class);
+					arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
+					shooter.add(arrow);
+				}
+			}, 8);
 		}
-		kunai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.KUNAI) * 1000));
-		Arrow arrow = player.launchProjectile(Arrow.class);
-		arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-		shooter.add(arrow);
-		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				Arrow arrow = player.launchProjectile(Arrow.class);
-				arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-				shooter.add(arrow);
-			}
-		}, 4);
-		scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				Arrow arrow = player.launchProjectile(Arrow.class);
-				arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-				shooter.add(arrow);
-			}
-		}, 8);
 	}
 	
 	//Throw the knife
@@ -98,6 +134,24 @@ public class Kunai extends MoveBase implements Listener {
 			if (arrow instanceof Arrow && shooter.contains(arrow)) {
 				//GET RID OF ARROW
 				arrow.remove();
+			} else if (arrow instanceof Arrow && explosive.contains(arrow)) {
+				Bukkit.getScheduler().cancelTask(taskID.get(arrow));
+				arrow.remove();
+			}
+		}
+	}
+	
+	@EventHandler
+	public void arrowDamage(EntityDamageByEntityEvent event) {
+		if (!event.getCause().equals(DamageCause.PROJECTILE))
+			return;
+		if (event.getDamager() instanceof Arrow) {
+			Arrow arrow = (Arrow) event.getDamager();
+			if (explosive.contains(arrow)) {
+				Entity entity = event.getEntity();
+				entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation(), 1);
+				entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
+				entity.setFireTicks(3*20);
 			}
 		}
 	}

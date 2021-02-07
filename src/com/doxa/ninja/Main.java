@@ -259,8 +259,9 @@ public class Main extends JavaPlugin implements Listener {
 					case "meditate":
 						med.createMedItem(player, prefix);
 						break;
-					case "end":
-						endParticles(player);
+					//TAIJUTSU
+					case "taijutsu":
+						tai.createItem(player, prefix);
 						break;
 					//CLEAR BINDS
 					case "clear":
@@ -271,6 +272,7 @@ public class Main extends JavaPlugin implements Listener {
 						ras.clear(player);
 						sc.clear(player);
 						med.clear(player);
+						tai.clear(player);
 						player.sendMessage(prefix + bad + "Binds Cleared!");
 						break;
 					//SHOW ALL BINDS
@@ -286,6 +288,7 @@ public class Main extends JavaPlugin implements Listener {
 						player.sendMessage(ChatColor.AQUA + "Rasengan");
 						player.sendMessage(ChatColor.AQUA + "Chidori");
 						player.sendMessage(ChatColor.AQUA + "Meditate");
+						player.sendMessage(ChatColor.AQUA + "Taijutsu");
 						player.sendMessage("");
 						break;
 					default:
@@ -293,17 +296,72 @@ public class Main extends JavaPlugin implements Listener {
 						break;
 				}
 			} else if (args[0].equalsIgnoreCase("help")) {
-				player.sendMessage("");
-				player.sendMessage(prefix + ChatColor.YELLOW + "Version: " + getPluginVersion() + " - Created By Nick Doxa");
-				player.sendMessage("");
-				player.sendMessage(ChatColor.DARK_AQUA  + "" + ChatColor.BOLD + "Commands:");
-				player.sendMessage(ChatColor.AQUA + "/Ninja help - brings up help menu!");
-				player.sendMessage(ChatColor.AQUA + "/Ninja bind <move> - binds move to current slot!");
-				player.sendMessage(ChatColor.AQUA + "/Ninja bind clear - clears binds!");
-				player.sendMessage(ChatColor.AQUA + "/Ninja bind list - show all moves!");
-				player.sendMessage(ChatColor.AQUA + "/Ninja errors - show error log!");
-				player.sendMessage(ChatColor.AQUA + "/Ninja errors clear - clear error log!");
-				player.sendMessage("");
+				if (args.length < 2) {
+					player.sendMessage("");
+					player.sendMessage(prefix + ChatColor.YELLOW + "Version: " + getPluginVersion() + " - Created By Nick Doxa");
+					player.sendMessage("");
+					player.sendMessage(ChatColor.DARK_AQUA  + "" + ChatColor.BOLD + "Commands:");
+					player.sendMessage(ChatColor.AQUA + "/Ninja help - brings up help menu!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja bind <move> - binds move to current slot!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja bind clear - clears binds!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja bind list - show all moves!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja errors - show error log!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja errors clear - clear error log!");
+					player.sendMessage("");
+				} else {
+					switch(args[1].toLowerCase()) {
+						//TAIJUTSU
+						case "taijutsu":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + tai.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + tai.getDescription());
+							break;
+						case "kunai":
+							player.sendMessage(ChatColor.DARK_AQUA + kunai.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + kunai.getDescription());
+							break;
+						//SUBSTITION BIND
+						case "substitution":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + sub.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + sub.getDescription());
+							break;
+						//CHIDORI BIND
+						case "chidori":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + chi.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + chi.getDescription());
+							break;
+						//SHADOW CLONE BIND
+						case "clone":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + sc.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + sc.getDescription());
+							break;
+						//AGILITY BINDS
+						case "agility":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + agility.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + agility.getDescription());
+							break;
+						//RASENGAN BINDS
+						case "rasengan":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + ras.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + ras.getDescription());
+							break;
+						//MEDITATE BINDS
+						case "meditate":
+							player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + ras.getName());
+							player.sendMessage("");
+							player.sendMessage(ChatColor.AQUA + ras.getDescription());
+							break;
+						default:
+							player.sendMessage(prefix + ChatColor.RED + "Invalid move name. Try /ninja bind list");
+							break;
+					}
+				}
 			} else if (args[0].equalsIgnoreCase("clear")) {
 				kunai.clear(player);
 				sub.clear(player);
@@ -312,6 +370,7 @@ public class Main extends JavaPlugin implements Listener {
 				ras.clear(player);
 				sc.clear(player);
 				med.clear(player);
+				tai.clear(player);
 				player.sendMessage(prefix + bad + "Binds Cleared!");
 			} else if (args[0].equalsIgnoreCase("errors") && args.length > 1) {
 				switch (args[1].toLowerCase()) {

@@ -40,6 +40,11 @@ public class Chidori extends MoveBase implements Listener {
 		setName("Chidori", ChatColor.BLUE + "" + ChatColor.BOLD + "Chidori");
 		setItem(Material.PRISMARINE_SHARD);
 		setMoveType(MoveType.CHIDORI);
+		setDescription("Chidori (A thousand birds) is a move known to few ninja."
+				+ " By loading up their chakra a ninja can create a lightning-type ball to strike their"
+				+ " opponent! To use: right click, then left click your opponent. The longer you load your"
+				+ " chakra the harder you hit! after 5 seconds your chakra returns to normal. Using Chidori"
+				+ " and Rasengan at the same time will overload your chakra and damage you badly!");
 	}
 	
 	public void createChiItem(Player player, String prefix) {

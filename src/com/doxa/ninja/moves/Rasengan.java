@@ -40,6 +40,11 @@ public class Rasengan extends MoveBase implements Listener {
 		setName("Rasengan", ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Rasengan");
 		setItem(Material.HEART_OF_THE_SEA);
 		setMoveType(MoveType.RASENGAN);
+		setDescription("Rasengan, a rare move that many ninja cannot master, is a small ball of chakra"
+				+ " bound together tightly. To use the rasengan: right click to begin loading your chakra"
+				+ ", then left click your opponent. After 5 seconds your chakra will return to normal"
+				+ " Using Chidori and Rasengan at the same time will overload"
+				+ " your chakra and damage you badly. This move deals heavy knockback aswell.");
 	}
 	
 	public void createRasItem(Player player, String prefix) {

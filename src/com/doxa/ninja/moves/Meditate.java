@@ -33,6 +33,8 @@ public class Meditate extends MoveBase implements Listener {
 		setName("Meditate", ChatColor.GREEN + "" + ChatColor.BOLD + "Meditate");
 		setItem(Material.SUNFLOWER);
 		setMoveType(MoveType.MEDITATE);
+		setDescription("Meditation is a cleansing event for a ninja. Used by many to heal the mind but also to"
+				+ " heal the body. To use: shift while holding meditate. The longer you shift the more you heal.");
 	}
 	
 	public void createMedItem(Player player, String prefix) {

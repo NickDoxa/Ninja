@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -64,14 +65,16 @@ public class Taijutsu extends MoveBase implements Listener {
 				tai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.CHIDORI) * 1000));
 				event.setDamage((plugin.getDamage(MoveType.TAIJUTSU) * 2.0));
 				if (entity instanceof Player) {
-					((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, (5*20), 1, true, false, false));
+					((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, (5*20), 5, true, false, false));
 					((Player) entity).spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You were kicked in the " 
 								+ ChatColor.DARK_RED + "" + ChatColor.BOLD + "head!"));
 				}
+			//PUNCH
 			} else {
 				event.setDamage(plugin.getDamage(MoveType.TAIJUTSU));
 			}
 			player.playSound(player.getLocation(), Sound.ENTITY_PHANTOM_FLAP, 1, 1);
+			player.getWorld().spawnParticle(Particle.CRIT, entity.getLocation(), 10);
 		}
 	}
 	

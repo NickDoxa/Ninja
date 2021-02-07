@@ -45,6 +45,10 @@ public class ShadowClone extends MoveBase implements Listener {
 		setName("Shadow Clones", ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Shadow Clones");
 		setItem(Material.NETHER_STAR);
 		setMoveType(MoveType.CLONE);
+		setDescription("The Shadow Clone Jutsu! A fun and useful technique for a ninja."
+				+ " Creating physical clones of one's self to fight or distract the enemy, the shadow clone"
+				+ " jutsu is quite effective. To use: right click with shadow clone in hand. You will gain"
+				+ " invisibility for a second to escape your opponents view. This move uses chakra.");
 	}
 	
 	public void createSCItem(Player player, String prefix) {

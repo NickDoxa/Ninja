@@ -35,6 +35,11 @@ public class Substitution extends MoveBase implements Listener {
 		setName("Substitution", ChatColor.AQUA + "" + ChatColor.BOLD + "Substitution");
 		setItem(Material.OAK_LOG);
 		setMoveType(MoveType.SUBSTITUTION);
+		setDescription("Substitution is a keen tool for a ninjas arsenal."
+				+ " By replacing one's self with a log or tree branch, a ninja can evade an enemy attack and"
+				+ " disappear. To use: hold substitution while an enemy hits you. You will have a small amount"
+				+ " of invisibility and you will not take damage from the attack used as long as you are not"
+				+ " on cooldown!");
 	}
 	
 	public void createSubItem(Player player, String prefix) {

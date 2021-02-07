@@ -36,6 +36,9 @@ public class Agility extends MoveBase implements Listener {
 		setName("Agility", ChatColor.YELLOW + "" + ChatColor.BOLD + "Agility");
 		setItem(Material.FEATHER);
 		setMoveType(MoveType.AGILITY);
+		setDescription("Agility is a key skill for a ninja to have. A ninja must be fast and jump high."
+				+ " While holding agility, shift to fast run, jump for high jump, and right click"
+				+ " for air dash.");
 	}
 	
 	public void createAgItem(Player player, String prefix) {
