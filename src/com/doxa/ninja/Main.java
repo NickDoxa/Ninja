@@ -28,7 +28,7 @@ import com.doxa.ninja.moves.particles.Quit;
 
 public class Main extends JavaPlugin implements Listener {
 	
-	private double version = 1.2;
+	private double version = 1.4;
 	public double getPluginVersion() {
 		return version;
 	}
