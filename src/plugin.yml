@@ -6,4 +6,4 @@ api-version: 1.16
 author: Nick Doxa
 commands:
   ninja:
-    description: main command for ninja!
+    description: main command for ninja core!

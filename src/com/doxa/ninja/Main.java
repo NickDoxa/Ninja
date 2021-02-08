@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -431,7 +432,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	@EventHandler
-	public void onDeathRemoveParticles(Player player) {
+	public void onDeathRemoveParticles(PlayerDeathEvent event) {
+		Player player = (Player) event.getEntity();
 		if (ras.isActive(player)) {
 			ras.removeParticles(player);
 			ras.setActiveMap(player, false);

@@ -10,7 +10,7 @@ cooldowns:
   meditate: 60
   taijutsu: 10
 damage:
-  chidori: 15.0
+  chidori: 13.0
   rasengan: 10.0
   chakra-overload: 10.0
   kunai: 3.0

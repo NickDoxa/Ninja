@@ -79,7 +79,7 @@ public class Meditate extends MoveBase implements Listener {
 				if (med_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (med_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-							new TextComponent(ChatColor.RED + "Cannot use for " + timeleft + " seconds"));
+							new TextComponent(ChatColor.RED + "Cannot use for " + (timeleft+1) + " seconds"));
 					return;
 				}
 			}

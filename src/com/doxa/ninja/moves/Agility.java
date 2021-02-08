@@ -3,6 +3,7 @@ package com.doxa.ninja.moves;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
 import com.doxa.ninja.Main;
@@ -38,13 +40,15 @@ public class Agility extends MoveBase implements Listener {
 		setMoveType(MoveType.AGILITY);
 		setDescription("Agility is a key skill for a ninja to have. A ninja must be fast and jump high."
 				+ " While holding agility, shift to fast run, jump for high jump, and right click"
-				+ " for air dash.");
+				+ " for air dash. To wall run shift while next to a flat wall surface.");
 	}
 	
 	public void createAgItem(Player player, String prefix) {
 		createItem(player, prefix);
 	}
 	
+	Map<String, Long> wall_cd = new HashMap<String, Long>();
+	boolean once = false;
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onJump(PlayerMoveEvent event) {
@@ -64,6 +68,35 @@ public class Agility extends MoveBase implements Listener {
 				Vector vec = player.getEyeLocation().getDirection();
 				player.setVelocity(new Vector(vec.getX() * 0.6, vec.getY() * 0, vec.getZ() * 0.6));
 			}
+			if (player.isSneaking() && 
+					player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
+				if (player.getLocation().getBlock().getRelative(BlockFace.WEST).getType() != Material.AIR
+					|| player.getLocation().getBlock().getRelative(BlockFace.NORTH).getType() != Material.AIR
+					|| player.getLocation().getBlock().getRelative(BlockFace.EAST).getType() != Material.AIR
+					|| player.getLocation().getBlock().getRelative(BlockFace.SOUTH).getType() != Material.AIR) {
+					if (wall_cd.containsKey(player.getName())) {
+						if (wall_cd.get(player.getName()) > System.currentTimeMillis()) {
+							long timeleft = (wall_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
+							player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
+									new TextComponent(ChatColor.RED + "Cannot use for " + (timeleft+1) + " seconds"));
+							return;
+						}
+					}
+					once = true;
+					BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+					scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+						public void run() {
+							if (once) {
+								wall_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.AGILITY) * 1000));
+								once = false;
+							}
+						}
+					},3*20);
+					Vector vec = player.getEyeLocation().getDirection();
+					player.setVelocity(new Vector(vec.getX()*0.5, vec.getY()*0, vec.getZ()*0.5));
+					player.getWorld().playSound(player.getLocation(), Sound.BLOCK_STONE_STEP, 1, 1);
+				}
+			}
 		}
 	}
 	
@@ -82,14 +115,14 @@ public class Agility extends MoveBase implements Listener {
 				if (ag_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (ag_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-							new TextComponent(ChatColor.RED + "Cannot use for " + timeleft + " seconds"));
+							new TextComponent(ChatColor.RED + "Cannot use for " + (timeleft+1) + " seconds"));
 					return;
 				}
 			}
-			ag_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.AGILITY) * 1000));
+	        ag_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.AGILITY) * 1000));
 			Vector vec = player.getEyeLocation().getDirection();
 			player.setVelocity(new Vector(vec.getX() * 2, vec.getY(), vec.getZ() * 2));
-			player.getWorld().playSound(player.getLocation(), Sound.ENTITY_DOLPHIN_JUMP, 1, 1);
+			player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 1);
 		}
 	}
 	

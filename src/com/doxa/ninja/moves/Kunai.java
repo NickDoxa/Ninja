@@ -68,7 +68,7 @@ public class Kunai extends MoveBase implements Listener {
 				if (kunai_exp_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (kunai_exp_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-							new TextComponent(ChatColor.RED + "Cannot throw explosive kunai for " + timeleft + " seconds"));
+							new TextComponent(ChatColor.RED + "Cannot throw explosive kunai for " + (timeleft+1) + " seconds"));
 					return;
 				}
 			}
@@ -89,7 +89,7 @@ public class Kunai extends MoveBase implements Listener {
 				if (kunai_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (kunai_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-							new TextComponent(ChatColor.RED + "Cannot throw for " + timeleft + " seconds"));
+							new TextComponent(ChatColor.RED + "Cannot throw for " + (timeleft+1) + " seconds"));
 					return;
 				}
 			}

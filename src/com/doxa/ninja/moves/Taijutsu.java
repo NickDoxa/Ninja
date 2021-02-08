@@ -58,7 +58,7 @@ public class Taijutsu extends MoveBase implements Listener {
 					if (tai_cd.get(player.getName()) > System.currentTimeMillis()) {
 						long timeleft = (tai_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
 						player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
-								new TextComponent(ChatColor.RED + "Cannot use for " + timeleft + " seconds"));
+								new TextComponent(ChatColor.RED + "Cannot use for " + (timeleft+1) + " seconds"));
 						return;
 					}
 				}
