@@ -224,7 +224,8 @@ public class Main extends JavaPlugin implements Listener {
 				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help or /ninja bind <move>");
 				return true;
 			}
-			if (args.length < 2 && !args[0].equalsIgnoreCase("help") && !args[0].equalsIgnoreCase("clear") && !args[0].equalsIgnoreCase("errors")) {
+			if (args.length < 2 && !args[0].equalsIgnoreCase("help") && !args[0].equalsIgnoreCase("clear") 
+					&& !args[0].equalsIgnoreCase("errors") && !args[0].equalsIgnoreCase("version")) {
 				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help or /ninja bind <move>");
 				return true;
 			}
@@ -387,6 +388,9 @@ public class Main extends JavaPlugin implements Listener {
 				} catch (IOException e) {
 					file.writeReport(e.getCause().toString(), "IOException Reader!");
 				}
+			} else if (args[0].equalsIgnoreCase("version")) {
+				player.sendTitle(ChatColor.AQUA + "Version: " + version, 
+						ChatColor.GOLD + "Created by Nick Doxa", 1, 60, 1);
 			} else {
 				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help");
 			}

@@ -94,7 +94,7 @@ public class Agility extends MoveBase implements Listener {
 					},3*20);
 					Vector vec = player.getEyeLocation().getDirection();
 					player.setVelocity(new Vector(vec.getX()*0.5, vec.getY()*0, vec.getZ()*0.5));
-					player.getWorld().playSound(player.getLocation(), Sound.BLOCK_STONE_STEP, 1, 1);
+					player.getWorld().playSound(player.getLocation(), Sound.BLOCK_STONE_STEP, 0.1f, 1);
 				}
 			}
 		}
@@ -122,7 +122,7 @@ public class Agility extends MoveBase implements Listener {
 	        ag_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.AGILITY) * 1000));
 			Vector vec = player.getEyeLocation().getDirection();
 			player.setVelocity(new Vector(vec.getX() * 2, vec.getY(), vec.getZ() * 2));
-			player.getWorld().playSound(player.getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 1);
+			player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PHANTOM_SWOOP, 1, 1);
 		}
 	}
 	
