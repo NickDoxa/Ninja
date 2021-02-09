@@ -1,9 +1,11 @@
 package com.doxa.ninja;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.doxa.ninja.bar.Bar;
 import com.doxa.ninja.files.FileClass;
+import com.doxa.ninja.levels.SQL;
 import com.doxa.ninja.moves.Agility;
 import com.doxa.ninja.moves.Chidori;
 import com.doxa.ninja.moves.Kunai;
@@ -78,6 +81,7 @@ public class Main extends JavaPlugin implements Listener {
 		file.writeReport(error, reason);
 	}
 	public Bar bar;
+	public SQL sql;
 
 	@Override
 	public void onEnable() {
@@ -86,17 +90,22 @@ public class Main extends JavaPlugin implements Listener {
 		this.saveDefaultConfig();
 		file.createFile();
 		useScoreboard = getConfig().getBoolean("use-scoreboard");
-		this.kunai = new Kunai(this);
 		this.scoreboard = new ScoreBoard(this);
+		
+		this.kunai = new Kunai(this);
 		this.sub = new Substitution(this);
 		this.agility = new Agility(this);
 		this.chi = new Chidori(this);
 		this.ras = new Rasengan(this);
 		this.sc = new ShadowClone(this);
 		this.med = new Meditate(this);
-		this.bar = new Bar(this);
 		this.tai = new Taijutsu(this);
+		
+		this.bar = new Bar(this);
+		this.sql = new SQL(this);
+		sql.createTable();
 		this.getCommand("ninja").setTabCompleter(new TabClass());
+		this.getCommand("n").setTabCompleter(new TabClass());
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getPluginManager().registerEvents(kunai, this);
 		this.getServer().getPluginManager().registerEvents(sub, this);
@@ -120,7 +129,24 @@ public class Main extends JavaPlugin implements Listener {
 				bar.getBar(online).removeAll();
 				bar.createBar(online);
 				sub.setCD(online, false);
+				sql.createPlayer(online);
 		}
+		
+		//MYSQL
+		try {
+			sql.connect();
+		} catch (SQLException e) {
+			// Login info is incorrect
+			// they are not using a database
+			Bukkit.getLogger().info("[Ninja] Database not connected");
+		}
+		
+		
+		if (sql.isConnected()) {
+			Bukkit.getLogger().info("[Ninja] Database is connected!");
+			sql.createTable();
+		}
+		
 	
 		//BASE MOVES CREATION
 		kunai.createItemKunai();
@@ -160,6 +186,7 @@ public class Main extends JavaPlugin implements Listener {
 		System.out.println("[Ninja] Plugin Disengaging!");
 	}
 	
+    public enum RANK{GENIN, CHUNIN, JONIN, SHINOBI, HOKAGE}
 	
 	public enum MoveType{KUNAI, SUBSTITUTION, AGILITY, CHIDORI, RASENGAN, CLONE, MEDITATE, TAIJUTSU, CHAKRA_OVERLOAD};
 	//COOLDOWN RETURN
@@ -208,25 +235,27 @@ public class Main extends JavaPlugin implements Listener {
 		return clone_amt_config;
 	}
 	
+	public String getNinjaLevel(Player player) {
+		return sql.getRank(player.getName());
+	}
+	
 	//PREFIX
 	public String prefix = 
 			ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("prefix")) + " ";
-	public String good = ChatColor.AQUA + "";
-	public String bad = ChatColor.RED + "";
 	
 	//COMMANDS
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (!label.equalsIgnoreCase("ninja"))
+		if (!label.equalsIgnoreCase("ninja") && !label.equalsIgnoreCase("n"))
 			return true;
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			if (args.length < 1) {
-				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help or /ninja bind <move>");
+				player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja help or /ninja bind <move>");
 				return true;
 			}
 			if (args.length < 2 && !args[0].equalsIgnoreCase("help") && !args[0].equalsIgnoreCase("clear") 
-					&& !args[0].equalsIgnoreCase("errors") && !args[0].equalsIgnoreCase("version")) {
-				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help or /ninja bind <move>");
+					&& !args[0].equalsIgnoreCase("errors") && !args[0].equalsIgnoreCase("version") && !args[0].equalsIgnoreCase("level")) {
+				player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja help or /ninja bind <move>");
 				return true;
 			}
 			
@@ -275,7 +304,7 @@ public class Main extends JavaPlugin implements Listener {
 						sc.clear(player);
 						med.clear(player);
 						tai.clear(player);
-						player.sendMessage(prefix + bad + "Binds Cleared!");
+						player.sendMessage(prefix + ChatColor.RED + "Binds Cleared!");
 						break;
 					//SHOW ALL BINDS
 					case "list":
@@ -294,7 +323,7 @@ public class Main extends JavaPlugin implements Listener {
 						player.sendMessage("");
 						break;
 					default:
-						player.sendMessage(prefix + bad + "Incorrect Usage: /ninja bind <move> or /ninja bind list - to see all moves!");
+						player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja bind <move> or /ninja bind list - to see all moves!");
 						break;
 				}
 			} else if (args[0].equalsIgnoreCase("help")) {
@@ -373,7 +402,7 @@ public class Main extends JavaPlugin implements Listener {
 				sc.clear(player);
 				med.clear(player);
 				tai.clear(player);
-				player.sendMessage(prefix + bad + "Binds Cleared!");
+				player.sendMessage(prefix + ChatColor.RED + "Binds Cleared!");
 			} else if (args[0].equalsIgnoreCase("errors") && args.length > 1) {
 				switch (args[1].toLowerCase()) {
 					case "clear":
@@ -391,8 +420,44 @@ public class Main extends JavaPlugin implements Listener {
 			} else if (args[0].equalsIgnoreCase("version")) {
 				player.sendTitle(ChatColor.AQUA + "Version: " + version, 
 						ChatColor.GOLD + "Created by Nick Doxa", 1, 60, 1);
+			} else if (args[0].equalsIgnoreCase("level")) {
+				try {
+				Player p2 = Bukkit.getPlayer(args[1]);
+					switch (args[2].toLowerCase()) {
+						case "genin":
+							sql.setRank(p2.getName(), RANK.GENIN);
+							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
+							p2.sendMessage(prefix + "Your Ninja Level is now: Genin!");
+							break;
+						case "chunin":
+							sql.setRank(p2.getName(), RANK.CHUNIN);
+							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
+							p2.sendMessage(prefix + "Your Ninja Level is now: Chunin!");
+							break;
+						case "jonin":
+							sql.setRank(p2.getName(), RANK.JONIN);
+							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
+							p2.sendMessage(prefix + "Your Ninja Level is now: Jonin!");
+							break;
+						case "shinobi":
+							sql.setRank(p2.getName(), RANK.SHINOBI);
+							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
+							p2.sendMessage(prefix + "Your Ninja Level is now: Shinobi!");
+							break;
+						case "hokage":
+							sql.setRank(p2.getName(), RANK.HOKAGE);
+							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
+							p2.sendMessage(prefix + "Your Ninja Level is now: Hokage!");
+							break;
+						default:
+							player.sendMessage(prefix + ChatColor.RED + "Invalid Rank, Try: Genin, Chunin, Jonin, Shinobi, or Hokage!");
+							break;
+					}
+				} catch (NullPointerException e) {
+					player.sendMessage(prefix +  ChatColor.RED + args[1] + " is not online or does not exist!");
+				}
 			} else {
-				player.sendMessage(prefix + bad + "Incorrect Usage: /ninja help");
+				player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja help");
 			}
 		} else {
 			System.out.println("Consoles can't be ninja im sorry :(");
@@ -412,10 +477,12 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+		sql.createPlayer(player);
 		chi.setActiveMap(player, false);
 		ras.setActiveMap(player, false);
 		med.setActiveMap(player, false);
 		sub.setCD(player, false);
+		bar.createBar(player);
 	}
 	
 	@EventHandler
@@ -432,6 +499,15 @@ public class Main extends JavaPlugin implements Listener {
 		if (med.isActive(player)) {
 			med.removeParticles(player);
 			med.setActiveMap(player, false);
+		}
+		try {
+			if (bar.getBar(player).getPlayers().contains(player)) {
+				removeBar(player);
+			} else {
+				return;
+			}
+		} catch (NullPointerException e) {
+			return;
 		}
 	}
 	
@@ -452,6 +528,16 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
+	@EventHandler
+	public void onKill(PlayerDeathEvent event) {
+		if (event.getEntity() instanceof Player && event.getEntity().getKiller() instanceof Player) {
+			Player player = (Player) event.getEntity().getKiller();
+			player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+			sql.addKills(player.getName(), player.getStatistic(Statistic.PLAYER_KILLS));
+			scoreboard.createBoard(player);
+		}
+	}
+	
 	public void chakraOverloadMain(Player player) {
 		if (ras.isActive(player) || chi.isActive(player)) {
 			ras.chakraOverload(player);
@@ -461,26 +547,6 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public void removeBar(Player player) {
 		bar.getBar(player).removeAll();
-	}
-	
-	@EventHandler
-	public void onJoinCreateBar(PlayerJoinEvent event) {
-		Player player = event.getPlayer();
-		bar.createBar(player);
-	}
-	
-	@EventHandler
-	public void onLeaveDestroyBar(PlayerQuitEvent event) {
-		Player player = event.getPlayer();
-		try {
-			if (bar.getBar(player).getPlayers().contains(player)) {
-				removeBar(player);
-			} else {
-				return;
-			}
-		} catch (NullPointerException e) {
-			return;
-		}
 	}
 	
 	public void useChakra(double d, Player player) {

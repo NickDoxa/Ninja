@@ -154,6 +154,7 @@ public class ShadowClone extends MoveBase implements Listener {
 					z.getWorld().spawnParticle(Particle.SPIT, location.getX(), location.getY(), location.getZ(),
 	            			10);
 					z.remove();
+					zombie_check.remove(player);
 				}
 			}
 		}, 5 * 20);

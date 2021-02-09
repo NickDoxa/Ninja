@@ -7,3 +7,5 @@ author: Nick Doxa
 commands:
   ninja:
     description: main command for ninja core!
+  n:
+    description: alias for the main ninja command!

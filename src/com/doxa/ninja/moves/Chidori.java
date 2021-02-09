@@ -162,6 +162,11 @@ public class Chidori extends MoveBase implements Listener {
 		}
 	}
 	
+	@EventHandler
+	public void onGetDamaged(EntityDamageByEntityEvent event) {
+		
+	}
+	
 	public void chakraOverload(Player player) {
 		try {
 			if (isActive(player)) {

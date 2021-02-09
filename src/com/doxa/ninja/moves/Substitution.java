@@ -130,7 +130,7 @@ public class Substitution extends MoveBase implements Listener {
 					}
 				}	
 			} catch (NullPointerException e) {
-				plugin.writeReport(e.toString(), "log creation");
+				return;
 			}
 		}
 	}
@@ -148,7 +148,7 @@ public class Substitution extends MoveBase implements Listener {
 				return;
 			}
 		} catch (NullPointerException e) {
-			plugin.writeReport(e.toString(), "log creation");
+			return;
 		}
 	}
 }

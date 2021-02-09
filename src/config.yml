@@ -18,3 +18,9 @@ damage:
 shadow-clone:
   amt: 3
   use-invisibility: true
+MySQL:
+  host: ''
+  port: ''
+  database: ''
+  username: ''
+  password: ''
