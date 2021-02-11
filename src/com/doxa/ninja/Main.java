@@ -2,6 +2,8 @@ package com.doxa.ninja;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,7 +17,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import com.doxa.ninja.bar.Bar;
 import com.doxa.ninja.files.FileClass;
 import com.doxa.ninja.levels.SQL;
@@ -28,6 +29,9 @@ import com.doxa.ninja.moves.ShadowClone;
 import com.doxa.ninja.moves.Substitution;
 import com.doxa.ninja.moves.Taijutsu;
 import com.doxa.ninja.moves.particles.Quit;
+
+import net.raidstone.wgevents.events.RegionEnteredEvent;
+import net.raidstone.wgevents.events.RegionLeftEvent;
 
 public class Main extends JavaPlugin implements Listener {
 	
@@ -74,6 +78,7 @@ public class Main extends JavaPlugin implements Listener {
 	//OTHER VARIABLES
 	private int clone_amt_config;
 	private boolean clone_bool_config;
+	private String wg_region_config;
 	
 	//OTHER CLASSES
 	public FileClass file;
@@ -138,12 +143,12 @@ public class Main extends JavaPlugin implements Listener {
 		} catch (SQLException e) {
 			// Login info is incorrect
 			// they are not using a database
-			Bukkit.getLogger().info("[Ninja] Database not connected");
+			Bukkit.getLogger().info("Database not connected");
 		}
 		
 		
 		if (sql.isConnected()) {
-			Bukkit.getLogger().info("[Ninja] Database is connected!");
+			Bukkit.getLogger().info("Database is connected!");
 			sql.createTable();
 		}
 		
@@ -178,12 +183,14 @@ public class Main extends JavaPlugin implements Listener {
 		//GET CONFIG OTHERS
 		clone_amt_config = getConfig().getInt("shadow-clone.amt");
 		clone_bool_config = getConfig().getBoolean("shadow-clone.use-invisibility");
+		wg_region_config = getConfig().getString("protected-region");
 		
 	}
 	
 	@Override
 	public void onDisable() {
 		System.out.println("[Ninja] Plugin Disengaging!");
+		sql.disconnect();
 	}
 	
     public enum RANK{GENIN, CHUNIN, JONIN, SHINOBI, HOKAGE}
@@ -338,6 +345,7 @@ public class Main extends JavaPlugin implements Listener {
 					player.sendMessage(ChatColor.AQUA + "/Ninja bind list - show all moves!");
 					player.sendMessage(ChatColor.AQUA + "/Ninja errors - show error log!");
 					player.sendMessage(ChatColor.AQUA + "/Ninja errors clear - clear error log!");
+					player.sendMessage(ChatColor.AQUA + "/Ninja level <player> <rank> - set player Ninja Level!");
 					player.sendMessage("");
 				} else {
 					switch(args[1].toLowerCase()) {
@@ -421,33 +429,39 @@ public class Main extends JavaPlugin implements Listener {
 				player.sendTitle(ChatColor.AQUA + "Version: " + version, 
 						ChatColor.GOLD + "Created by Nick Doxa", 1, 60, 1);
 			} else if (args[0].equalsIgnoreCase("level")) {
+				if (args.length == 3) {
 				try {
 				Player p2 = Bukkit.getPlayer(args[1]);
 					switch (args[2].toLowerCase()) {
 						case "genin":
 							sql.setRank(p2.getName(), RANK.GENIN);
 							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
-							p2.sendMessage(prefix + "Your Ninja Level is now: Genin!");
+							p2.sendMessage(prefix + ChatColor.GREEN +  "Your Ninja Level is now: Genin!");
+							scoreboard.updateBoard(p2);
 							break;
 						case "chunin":
 							sql.setRank(p2.getName(), RANK.CHUNIN);
 							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
-							p2.sendMessage(prefix + "Your Ninja Level is now: Chunin!");
+							p2.sendMessage(prefix + ChatColor.GREEN +   "Your Ninja Level is now: Chunin!");
+							scoreboard.updateBoard(p2);
 							break;
 						case "jonin":
 							sql.setRank(p2.getName(), RANK.JONIN);
 							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
-							p2.sendMessage(prefix + "Your Ninja Level is now: Jonin!");
+							p2.sendMessage(prefix + ChatColor.GREEN +  "Your Ninja Level is now: Jonin!");
+							scoreboard.updateBoard(p2);
 							break;
 						case "shinobi":
 							sql.setRank(p2.getName(), RANK.SHINOBI);
 							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
-							p2.sendMessage(prefix + "Your Ninja Level is now: Shinobi!");
+							p2.sendMessage(prefix + ChatColor.GREEN +   "Your Ninja Level is now: Shinobi!");
+							scoreboard.updateBoard(p2);
 							break;
 						case "hokage":
 							sql.setRank(p2.getName(), RANK.HOKAGE);
 							player.sendMessage(prefix + ChatColor.GREEN + "Ninja Level Updated!");
-							p2.sendMessage(prefix + "Your Ninja Level is now: Hokage!");
+							p2.sendMessage(prefix + ChatColor.GREEN +   "Your Ninja Level is now: Hokage!");
+							scoreboard.updateBoard(p2);
 							break;
 						default:
 							player.sendMessage(prefix + ChatColor.RED + "Invalid Rank, Try: Genin, Chunin, Jonin, Shinobi, or Hokage!");
@@ -455,6 +469,9 @@ public class Main extends JavaPlugin implements Listener {
 					}
 				} catch (NullPointerException e) {
 					player.sendMessage(prefix +  ChatColor.RED + args[1] + " is not online or does not exist!");
+				}
+				} else {
+					player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja help");
 				}
 			} else {
 				player.sendMessage(prefix + ChatColor.RED + "Incorrect Usage: /ninja help");
@@ -551,6 +568,45 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public void useChakra(double d, Player player) {
 		bar.useChakra(d, player);
+	}
+	
+	/*
+	 * WORLD GUARD
+	 * VERSION 6.1
+	 */
+	
+	Map<Player, Boolean> guardMap = new HashMap<Player, Boolean>();
+	
+	public boolean isPlayerInGuardedRegion(Player player) {
+		return guardMap.get(player);
+	}
+	
+	@EventHandler
+	public void onRegionEnter(RegionEnteredEvent regionEvent)	{
+		Player player = regionEvent.getPlayer();
+		if (regionEvent.getRegion().getId().equalsIgnoreCase(wg_region_config)) {
+			guardMap.put(player, false);
+		}
+	}
+	
+	@EventHandler
+	public void onRegionLeave(RegionLeftEvent regionEvent) {
+		Player player = regionEvent.getPlayer();
+		if (regionEvent.getRegion().getId().equalsIgnoreCase(wg_region_config)) {
+			guardMap.put(player, true);
+		}
+	}
+	
+	@EventHandler
+	public void onGuardedJoin(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
+		guardMap.put(player, true);
+	}
+	
+	@EventHandler
+	public void onGuardedQuit(PlayerQuitEvent event) {
+		Player player = event.getPlayer();
+		guardMap.remove(player);
 	}
 	
 }

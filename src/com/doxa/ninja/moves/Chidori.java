@@ -79,6 +79,8 @@ public class Chidori extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			if (chi_cd.containsKey(player.getName())) {
 				if (chi_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (chi_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;
@@ -139,6 +141,17 @@ public class Chidori extends MoveBase implements Listener {
 	public void onSmack(EntityDamageByEntityEvent event) {
 		if (event.getDamager() instanceof Player) {
 			Player player = (Player) event.getDamager();
+			//CANCEL OUT IF TAIJUTSU
+			Entity damaged = event.getEntity();
+			if (damaged instanceof Player) {
+				Player d = (Player) damaged;
+				if (player.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu")
+						&& isActive(d)) {
+					removeParticles(d);
+					Active_Map.put(d, false);
+					return;
+				}
+			}
 			try {
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
@@ -149,8 +162,10 @@ public class Chidori extends MoveBase implements Listener {
 				return;
 			Entity entity = event.getEntity();
 			double damage = plugin.getDamage(MoveType.CHIDORI) + (chakraDamage.get(player)/2);
-			event.setDamage(damage);
 			if (entity instanceof Player) {
+				event.setDamage(0D);
+				final double health = ((Player) entity).getHealth();
+				((Player) entity).setHealth(health - damage);
 				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1, true, false, false));
 				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}

@@ -74,7 +74,6 @@ public class Kunai extends MoveBase implements Listener {
 			}
 			kunai_exp_cd.put(player.getName(), System.currentTimeMillis() + ((plugin.getCooldown(MoveType.KUNAI) * 1000)*3));
 			Arrow arrow = player.launchProjectile(Arrow.class);
-			arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
 			explosive.add(arrow);
 			int task;
 			task = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
@@ -125,6 +124,8 @@ public class Kunai extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 				throwKunai(player);
 		}
 	}
@@ -154,6 +155,12 @@ public class Kunai extends MoveBase implements Listener {
 				entity.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, entity.getLocation(), 1);
 				entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
 				entity.setFireTicks(3*20);
+				if (entity instanceof Player) {
+					event.setDamage(0D);
+					final double health = ((Player) entity).getHealth();
+					((Player) entity).setHealth(health - plugin.getDamage(MoveType.KUNAI));
+				}
+				
 			}
 		}
 	}

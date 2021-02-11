@@ -4,6 +4,7 @@ version: 1.0
 description: Ninja by Nick Doxa.
 api-version: 1.16
 author: Nick Doxa
+depend: [WorldGuardEvents]
 commands:
   ninja:
     description: main command for ninja core!

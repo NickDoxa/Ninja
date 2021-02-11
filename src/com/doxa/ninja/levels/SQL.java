@@ -80,8 +80,8 @@ public class SQL {
     		ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS levels"
     				+ " (NAME VARCHAR(100),RANK VARCHAR(100),KILLS INT(100),PRIMARY KEY (NAME))");
     		ps.executeUpdate();
-    	} catch (SQLException e) {
-    		e.printStackTrace();
+    	} catch (SQLException | NullPointerException e) {
+    		System.out.println("[Ninja] Table either already exists, or an error was thrown! (Most likely not an issue)");
     	}
     }
     

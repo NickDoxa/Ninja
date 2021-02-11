@@ -74,6 +74,8 @@ public class Meditate extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			particles.put(player, new ParticleData(player.getUniqueId()));
 			if (med_cd.containsKey(player.getName())) {
 				if (med_cd.get(player.getName()) > System.currentTimeMillis()) {

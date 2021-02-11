@@ -80,7 +80,8 @@ public class Rasengan extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			particles.put(player, new ParticleData(player.getUniqueId()));
 			if (ras_cd.containsKey(player.getName())) {
 				if (ras_cd.get(player.getName()) > System.currentTimeMillis()) {
@@ -139,8 +140,19 @@ public class Rasengan extends MoveBase implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSmack(EntityDamageByEntityEvent event) {
-		if (event.getDamager() instanceof Player) {
+		if (event.getDamager() instanceof Player) {	
 			Player player = (Player) event.getDamager();
+			//CANCEL OUT IF TAIJUTSU
+			Entity damaged = event.getEntity();
+			if (damaged instanceof Player) {
+				Player d = (Player) damaged;
+				if (player.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu")
+						&& isActive(d)) {
+					removeParticles(d);
+					Active_Map.put(d, false);
+					return;
+				}
+			}
 			try {
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
@@ -151,8 +163,10 @@ public class Rasengan extends MoveBase implements Listener {
 				return;
 			Entity entity = event.getEntity();
 			double damage = plugin.getDamage(MoveType.RASENGAN) + (chakraDamage.get(player)/2);
-			event.setDamage(damage);
 			if (entity instanceof Player) {
+				event.setDamage(0D);
+				final double health = ((Player) entity).getHealth();
+				((Player) entity).setHealth(health - damage);
 				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1), true);
 				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}

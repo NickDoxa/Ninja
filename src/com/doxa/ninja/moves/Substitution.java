@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -119,8 +120,15 @@ public class Substitution extends MoveBase implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event) {
+		Entity damager = event.getDamager();
+		if (damager instanceof Player) {
+			if (((Player) damager).getItemInHand().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu"))
+				return;
+		}
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			boolean cd = msg_cd.get(player) ? true : false;
 			try {
 				if (player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName())) {

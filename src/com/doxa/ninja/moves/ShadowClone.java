@@ -66,6 +66,8 @@ public class ShadowClone extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			if (sc_cd.containsKey(player.getName())) {
 				if (sc_cd.get(player.getName()) > System.currentTimeMillis()) {
 					long timeleft = (sc_cd.get(player.getName()) - System.currentTimeMillis()) / 1000;

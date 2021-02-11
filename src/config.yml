@@ -1,4 +1,4 @@
-prefix: '&8&l| &6&lNinja &8&l|'
+prefix: '&e&lNinja &8&l>&7&l>'
 use-scoreboard: true
 cooldowns:
   kunai: 5
@@ -24,3 +24,4 @@ MySQL:
   database: ''
   username: ''
   password: ''
+protected-region: 'spawn'

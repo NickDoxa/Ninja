@@ -52,6 +52,8 @@ public class Taijutsu extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
+			if (plugin.isPlayerInGuardedRegion(player))
+				return;
 			//KICK
 			if (player.isSneaking() && player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
 				if (tai_cd.containsKey(player.getName())) {

@@ -46,6 +46,11 @@ public class ScoreBoard implements Listener {
 		player.setScoreboard(board);
 	}
 	
+	public void updateBoard(Player player) {
+		player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+		createBoard(player);
+	}
+	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
@@ -56,8 +61,7 @@ public class ScoreBoard implements Listener {
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (event.getEntity().getKiller() instanceof Player) {
 			Player player = (Player) event.getEntity().getKiller();
-			player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-			createBoard(player);
+			updateBoard(player);
 		}
 	}
 }
