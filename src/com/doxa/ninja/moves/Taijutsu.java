@@ -1,6 +1,8 @@
 package com.doxa.ninja.moves;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
@@ -31,10 +33,13 @@ public class Taijutsu extends MoveBase implements Listener {
 	
 	public void createItemTai() {
 		setName("Taijutsu", ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu");
-		setItem(Material.RABBIT_FOOT);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.TAIJUTSU);
 		setDescription("Taijutsu is a martial art based upon traditional fighting styles. Using kicks and punches the attacker damages their opponent! To punch: left click an enemy."
-				+ " To kick: hold shift while jumping and left click an enemy! This move does not require chakra.");
+				+ " To kick: hold shift while jumping and left click an enemy! This move does not require chakra. This move can also cancel out Substitution, Rasengan, and Chidori!");
 	}
 	
 	public void createTaiItem(Player player, String prefix) {
@@ -52,7 +57,7 @@ public class Taijutsu extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			//KICK
 			if (player.isSneaking() && player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) {
@@ -65,7 +70,7 @@ public class Taijutsu extends MoveBase implements Listener {
 					}
 				}
 				tai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.CHIDORI) * 1000));
-				event.setDamage((plugin.getDamage(MoveType.TAIJUTSU) * 2.0));
+				event.setDamage((plugin.getDamage(MoveType.TAIJUTSU, player) * 2.0));
 				if (entity instanceof Player) {
 					((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, (5*20), 5, true, false, false));
 					((Player) entity).spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "You were kicked in the " 
@@ -73,7 +78,7 @@ public class Taijutsu extends MoveBase implements Listener {
 				}
 			//PUNCH
 			} else {
-				event.setDamage(plugin.getDamage(MoveType.TAIJUTSU));
+				event.setDamage(plugin.getDamage(MoveType.TAIJUTSU, player));
 			}
 			player.playSound(player.getLocation(), Sound.ENTITY_PHANTOM_FLAP, 1, 1);
 			player.getWorld().spawnParticle(Particle.CRIT, entity.getLocation(), 10);

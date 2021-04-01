@@ -9,12 +9,18 @@ cooldowns:
   shadow-clone: 45
   meditate: 60
   taijutsu: 10
+  raijin: 15
+  fireball: 10
+  sagemode: 120
+  smokebomb: 20
+  dome: 30
 damage:
   chidori: 13.0
   rasengan: 10.0
   chakra-overload: 10.0
   kunai: 3.0
   taijutsu: 1.5
+  fireball: 5.0
 shadow-clone:
   amt: 3
   use-invisibility: true
@@ -24,4 +30,6 @@ MySQL:
   database: ''
   username: ''
   password: ''
-protected-region: 'spawn'
+protected-region:
+  - 'spawn'
+  - 'safezone'

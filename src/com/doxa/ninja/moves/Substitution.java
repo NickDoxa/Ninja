@@ -1,6 +1,8 @@
 package com.doxa.ninja.moves;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -34,7 +36,10 @@ public class Substitution extends MoveBase implements Listener {
 	
 	public void createItemSubstitution() {
 		setName("Substitution", ChatColor.AQUA + "" + ChatColor.BOLD + "Substitution");
-		setItem(Material.OAK_LOG);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.SUBSTITUTION);
 		setDescription("Substitution is a keen tool for a ninjas arsenal."
 				+ " By replacing one's self with a log or tree branch, a ninja can evade an enemy attack and"
@@ -120,14 +125,18 @@ public class Substitution extends MoveBase implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event) {
+		try {
 		Entity damager = event.getDamager();
 		if (damager instanceof Player) {
 			if (((Player) damager).getItemInHand().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu"))
 				return;
 		}
+		}catch (NullPointerException e) {
+			//do nothing yet
+		}
 		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			boolean cd = msg_cd.get(player) ? true : false;
 			try {

@@ -43,7 +43,10 @@ public class ShadowClone extends MoveBase implements Listener {
 	
 	public void createItemSC() {
 		setName("Shadow Clones", ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Shadow Clones");
-		setItem(Material.NETHER_STAR);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.CLONE);
 		setDescription("The Shadow Clone Jutsu! A fun and useful technique for a ninja."
 				+ " Creating physical clones of one's self to fight or distract the enemy, the shadow clone"
@@ -66,7 +69,7 @@ public class ShadowClone extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			if (sc_cd.containsKey(player.getName())) {
 				if (sc_cd.get(player.getName()) > System.currentTimeMillis()) {

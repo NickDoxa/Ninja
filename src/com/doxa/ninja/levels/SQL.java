@@ -61,8 +61,6 @@ public class SQL {
     		return "Chunin";
     	} else if (r == RANK.JONIN) {
     		return "Jonin";
-    	} else if (r == RANK.SHINOBI) {
-    		return "Shinobi";
     	} else if (r == RANK.HOKAGE) {
     		return "Hokage";
     	} else {
@@ -78,7 +76,7 @@ public class SQL {
     	PreparedStatement ps;
     	try {
     		ps = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS levels"
-    				+ " (NAME VARCHAR(100),RANK VARCHAR(100),KILLS INT(100),PRIMARY KEY (NAME))");
+    				+ " (NAME VARCHAR(100),RANK VARCHAR(100),MISSION VARCHAR(100),LAST VARCHAR(100),EXPLOSIVE INT(100),KILLS INT(100),PRIMARY KEY (NAME))");
     		ps.executeUpdate();
     	} catch (SQLException | NullPointerException e) {
     		System.out.println("[Ninja] Table either already exists, or an error was thrown! (Most likely not an issue)");
@@ -146,6 +144,44 @@ public class SQL {
 		return 0;
 	}
 	
+	public void setKills(String name, int kills) {
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("UPDATE levels SET KILLS=? WHERE NAME=?");
+			ps.setInt(1, kills);
+			ps.setString(2, name.toString());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addExplosiveKills(String name, int kills) {
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("UPDATE levels SET EXPLOSIVE=? WHERE NAME=?");
+			ps.setInt(1, (getKills(name) + kills));
+			ps.setString(2, name.toString());
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public int getExplosiveKills(String name) {
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("SELECT EXPLOSIVE FROM levels WHERE NAME=?");
+			ps.setString(1, name);
+			ResultSet rs = ps.executeQuery();
+			int points = 0;
+			if (rs.next()) {
+				points = rs.getInt("KILLS");
+				return points;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 	public void setRank(String name, RANK r) {
 		try {
 			PreparedStatement ps = getConnection().prepareStatement("UPDATE levels SET RANK=? WHERE NAME=?");
@@ -170,6 +206,77 @@ public class SQL {
 			e.printStackTrace();
 		}
 		return rank;
+	}
+	
+	public void setMission(String name, String m) {
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("UPDATE levels SET MISSION=? WHERE NAME=?");
+			ps.setString(1, m);
+			ps.setString(2, name);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String getMission(String name) {
+		String mission = "";
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("SELECT MISSION FROM levels WHERE NAME=?");
+			ps.setString(1, name);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				mission = rs.getString("MISSION");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return mission;
+	}
+	
+	public void setLastMission(String name, String m) {
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("UPDATE levels SET LAST=? WHERE NAME=?");
+			ps.setString(1, m);
+			ps.setString(2, name);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String getLastMission(String name) {
+		String last_mission = "";
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("SELECT LAST FROM levels WHERE NAME=?");
+			ps.setString(1, name);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				last_mission = rs.getString("LAST");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return last_mission;
+	}
+	
+	public boolean hasMissionActive(Player p) {
+		String mission = "";
+		try {
+			PreparedStatement ps = getConnection().prepareStatement("SELECT MISSION FROM levels WHERE NAME=?");
+			ps.setString(1, p.getName());
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				mission = rs.getString("MISSION");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (mission == null || mission == "" || mission == "None") {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	

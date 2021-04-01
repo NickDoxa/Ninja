@@ -1,5 +1,7 @@
 package com.doxa.ninja.moves;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -10,6 +12,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -35,6 +38,7 @@ public abstract class MoveBase {
 	private String base_name;
 	private String color_name;
 	private String desc;
+	private List<String> lore;
 	private MoveType move;
 	
 	public void setMoveType(MoveType m) {
@@ -75,10 +79,19 @@ public abstract class MoveBase {
 		return desc;
 	}
 	
+	public void setLore(List<String> s) {
+		lore = s;
+	}
+	
+	public List<String> getLore() {
+		return lore;
+	}
+	
 	public void createItem(Player player, String prefix) {
 		PlayerInventory inv = player.getInventory();
 		ItemMeta item_meta = getItem().getItemMeta();
 		item_meta.setDisplayName(getColorName());
+		item_meta.setLore(lore);
 		item_meta.addEnchant(Enchantment.DURABILITY, 1, true);
 		item_meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		item_meta.setUnbreakable(true);
@@ -91,8 +104,15 @@ public abstract class MoveBase {
 			inv.setItem(inv.getHeldItemSlot(), getItem());
 		} else {
 			ItemStack item_move = inv.getItemInMainHand();
-			inv.setItem(inv.firstEmpty(), item_move);
-			inv.setItem(inv.getHeldItemSlot(), getItem());
+			if (item_move.hasItemMeta()) {
+			if (item_move.getItemMeta().hasDisplayName()) {
+			if (item_move.getItemMeta().getDisplayName().equals(getColorName())) {
+				inv.remove(item_move);
+			}}}
+			if (!item_move.hasItemMeta() || !item_move.getItemMeta().hasDisplayName() || !item_move.getItemMeta().getDisplayName().equals(getColorName())) {
+				inv.setItem(inv.firstEmpty(), item_move);
+				inv.setItem(inv.getHeldItemSlot(), getItem());
+			}
 		}
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
 				new TextComponent(ChatColor.GREEN + getName() + " Received"));
@@ -102,6 +122,12 @@ public abstract class MoveBase {
 	public void onClick(InventoryClickEvent event) {
 		ItemStack item = event.getCurrentItem();
 		ItemStack item2 = event.getCursor();
+		if (event.getClick().equals(ClickType.NUMBER_KEY)) {
+			Player player = (Player) event.getInventory().getHolder();
+			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, 
+					new TextComponent(ChatColor.RED + "You can't use your number pads to inventory switch!"));
+			event.setCancelled(true);
+		}
 		try {
 			if (item.getItemMeta().getDisplayName().equals(getColorName()) || 
 					item2.getItemMeta().getDisplayName().equals(getColorName())) {

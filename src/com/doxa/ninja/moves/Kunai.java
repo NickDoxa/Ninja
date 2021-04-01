@@ -38,7 +38,10 @@ public class Kunai extends MoveBase implements Listener {
 	
 	public void createItemKunai() {
 		setName("Kunai", ChatColor.RED + "" + ChatColor.BOLD + "Kunai");
-		setItem(Material.WOODEN_SWORD);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.KUNAI);
 		setDescription("The Kunai is a key tool in a ninjas arsenal. Used to throw or for hand to hand combat,"
 				+ " the kunai is very versatile. To use: right click to throw, "
@@ -93,22 +96,22 @@ public class Kunai extends MoveBase implements Listener {
 				}
 			}
 			kunai_cd.put(player.getName(), System.currentTimeMillis() + (plugin.getCooldown(MoveType.KUNAI) * 1000));
-			Arrow arrow = player.launchProjectile(Arrow.class);
-			arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-			shooter.add(arrow);
+			Arrow arrow1 = player.launchProjectile(Arrow.class);
+			arrow1.setDamage(plugin.getDamage(MoveType.KUNAI, player));
+			shooter.add(arrow1);
 			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 			scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
-					Arrow arrow = player.launchProjectile(Arrow.class);
-					arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-					shooter.add(arrow);
+					Arrow arrow2 = player.launchProjectile(Arrow.class);
+					arrow2.setDamage(plugin.getDamage(MoveType.KUNAI, player));
+					shooter.add(arrow2);
 				}
 			}, 4);
 			scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
-					Arrow arrow = player.launchProjectile(Arrow.class);
-					arrow.setDamage(plugin.getDamage(MoveType.KUNAI));
-					shooter.add(arrow);
+					Arrow arrow3 = player.launchProjectile(Arrow.class);
+					arrow3.setDamage(plugin.getDamage(MoveType.KUNAI, player));
+					shooter.add(arrow3);
 				}
 			}, 8);
 		}
@@ -124,7 +127,7 @@ public class Kunai extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 				throwKunai(player);
 		}
@@ -156,9 +159,16 @@ public class Kunai extends MoveBase implements Listener {
 				entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
 				entity.setFireTicks(3*20);
 				if (entity instanceof Player) {
-					event.setDamage(0D);
 					final double health = ((Player) entity).getHealth();
-					((Player) entity).setHealth(health - plugin.getDamage(MoveType.KUNAI));
+					double damage = plugin.getDamage(MoveType.KUNAI, ((Player)event.getDamager()));
+					double new_health = (health - damage);
+					if (new_health > 0.1) {
+						((Player) entity).setHealth(new_health);
+						event.setDamage(0.1);
+					} else {
+						((Player) entity).setHealth(0.1);
+						event.setDamage(0.1);
+					}
 				}
 				
 			}

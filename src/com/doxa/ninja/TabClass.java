@@ -20,6 +20,8 @@ public class TabClass implements TabCompleter {
 			arguments.add("rasengan"); arguments.add("chidori");
 			arguments.add("meditate"); arguments.add("errors");
 			arguments.add("taijutsu"); arguments.add("level");
+			arguments.add("raijin"); arguments.add("fireball");
+			arguments.add("sagemode"); arguments.add("smokebomb");
 		}
 		
 		List<String> result = new ArrayList<String>();

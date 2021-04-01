@@ -1,10 +1,10 @@
 main: com.doxa.ninja.Main
 name: Ninja
-version: 1.0
+version: 1.4
 description: Ninja by Nick Doxa.
 api-version: 1.16
 author: Nick Doxa
-depend: [WorldGuardEvents]
+depend: [WorldGuard]
 commands:
   ninja:
     description: main command for ninja core!

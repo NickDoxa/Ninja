@@ -1,6 +1,8 @@
 package com.doxa.ninja.moves;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -10,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +41,10 @@ public class Chidori extends MoveBase implements Listener {
 	
 	public void createItemChidori() {
 		setName("Chidori", ChatColor.BLUE + "" + ChatColor.BOLD + "Chidori");
-		setItem(Material.PRISMARINE_SHARD);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.CHIDORI);
 		setDescription("Chidori (A thousand birds) is a move known to few ninja."
 				+ " By loading up their chakra a ninja can create a lightning-type ball to strike their"
@@ -79,7 +85,7 @@ public class Chidori extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			if (chi_cd.containsKey(player.getName())) {
 				if (chi_cd.get(player.getName()) > System.currentTimeMillis()) {
@@ -107,7 +113,7 @@ public class Chidori extends MoveBase implements Listener {
 		            	Active_Map.put(player, false);
 		            	removeParticles(player);
 	            		} catch (NullPointerException e) {
-	            			plugin.writeReport(e.toString(), "particles");
+	            			return;
 	            		}
 	            	}
 	            }
@@ -144,11 +150,22 @@ public class Chidori extends MoveBase implements Listener {
 			//CANCEL OUT IF TAIJUTSU
 			Entity damaged = event.getEntity();
 			if (damaged instanceof Player) {
+				try {
+				if (((HumanEntity) damaged).getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Substitution")) {
+					return;
+				}
+				} catch (NullPointerException e) {
+					return;
+				}
 				Player d = (Player) damaged;
+				try {
 				if (player.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu")
 						&& isActive(d)) {
 					removeParticles(d);
 					Active_Map.put(d, false);
+					return;
+				}
+				} catch (NullPointerException e) {
 					return;
 				}
 			}
@@ -161,11 +178,17 @@ public class Chidori extends MoveBase implements Listener {
 			if (!Active_Map.get(player))
 				return;
 			Entity entity = event.getEntity();
-			double damage = plugin.getDamage(MoveType.CHIDORI) + (chakraDamage.get(player)/2);
+			double damage = plugin.getDamage(MoveType.CHIDORI, player) + (chakraDamage.get(player)/2);
 			if (entity instanceof Player) {
-				event.setDamage(0D);
 				final double health = ((Player) entity).getHealth();
-				((Player) entity).setHealth(health - damage);
+				double new_health = (health - damage);
+				if (new_health > 0.1) {
+					((Player) entity).setHealth(new_health);
+					event.setDamage(0.1);
+				} else {
+					((Player) entity).setHealth(0.1);
+					event.setDamage(0.1);
+				}
 				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1, true, false, false));
 				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}
@@ -186,7 +209,7 @@ public class Chidori extends MoveBase implements Listener {
 		try {
 			if (isActive(player)) {
 				removeParticles(player);
-		    	player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD));
+		    	player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD, player));
 		    	Active_Map.put(player, false);
 			}
 		} catch (NullPointerException e) {

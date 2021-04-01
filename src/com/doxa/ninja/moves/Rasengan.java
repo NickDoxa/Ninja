@@ -1,6 +1,8 @@
 package com.doxa.ninja.moves;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -10,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +41,10 @@ public class Rasengan extends MoveBase implements Listener {
 	
 	public void createItemRas() {
 		setName("Rasengan", ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Rasengan");
-		setItem(Material.HEART_OF_THE_SEA);
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.RASENGAN);
 		setDescription("Rasengan, a rare move that many ninja cannot master, is a small ball of chakra"
 				+ " bound together tightly. To use the rasengan: right click to begin loading your chakra"
@@ -80,7 +86,7 @@ public class Rasengan extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			particles.put(player, new ParticleData(player.getUniqueId()));
 			if (ras_cd.containsKey(player.getName())) {
@@ -108,7 +114,7 @@ public class Rasengan extends MoveBase implements Listener {
 		            	removeParticles(player);
 		            	Active_Map.put(player, false);
 	            		} catch (NullPointerException e) {
-	            			plugin.writeReport(e.toString(), "particles");
+	            			return;
 	            		}
 	            	}
 	            }
@@ -146,10 +152,14 @@ public class Rasengan extends MoveBase implements Listener {
 			Entity damaged = event.getEntity();
 			if (damaged instanceof Player) {
 				Player d = (Player) damaged;
+				try {
 				if (player.getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.GOLD + "" + ChatColor.BOLD + "Taijutsu")
 						&& isActive(d)) {
 					removeParticles(d);
 					Active_Map.put(d, false);
+					return;
+				}
+				} catch (NullPointerException e) {
 					return;
 				}
 			}
@@ -162,11 +172,24 @@ public class Rasengan extends MoveBase implements Listener {
 			if (!Active_Map.get(player))
 				return;
 			Entity entity = event.getEntity();
-			double damage = plugin.getDamage(MoveType.RASENGAN) + (chakraDamage.get(player)/2);
+			double damage = plugin.getDamage(MoveType.RASENGAN, player) + (chakraDamage.get(player)/2);
 			if (entity instanceof Player) {
-				event.setDamage(0D);
+				try {
+				if (((HumanEntity) damaged).getItemInHand().getItemMeta().getDisplayName().equals(ChatColor.AQUA + "" + ChatColor.BOLD + "Substitution")) {
+					return;
+				}
+				} catch (NullPointerException e) {
+					return;
+				}
 				final double health = ((Player) entity).getHealth();
-				((Player) entity).setHealth(health - damage);
+				double new_health = (health - damage);
+				if (new_health > 0.1) {
+					((Player) entity).setHealth(new_health);
+					event.setDamage(0.1);
+				} else {
+					((Player) entity).setHealth(0.1);
+					event.setDamage(0.1);
+				}
 				((Player) entity).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 5 * 20, 1), true);
 				((Player) entity).getWorld().playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1, 1);
 			}
@@ -184,7 +207,7 @@ public class Rasengan extends MoveBase implements Listener {
 		try {
 			if (isActive(player)) {
 				removeParticles(player);
-		    	player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD));
+		    	player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD, player));
 		    	Active_Map.put(player, false);
 			}
 		} catch (NullPointerException e) {

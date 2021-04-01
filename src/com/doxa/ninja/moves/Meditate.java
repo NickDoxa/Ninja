@@ -1,6 +1,8 @@
 package com.doxa.ninja.moves;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -30,11 +32,14 @@ public class Meditate extends MoveBase implements Listener {
 	}
 	
 	public void createItemMed() {
-		setName("Meditate", ChatColor.GREEN + "" + ChatColor.BOLD + "Meditate");
-		setItem(Material.SUNFLOWER);
+		setName("Healing", ChatColor.GREEN + "" + ChatColor.BOLD + "Healing");
+		setItem(Material.NETHERITE_INGOT);
+		List<String> lore = new ArrayList<String>();
+		lore.add("");
+		setLore(lore);
 		setMoveType(MoveType.MEDITATE);
-		setDescription("Meditation is a cleansing event for a ninja. Used by many to heal the mind but also to"
-				+ " heal the body. To use: shift while holding meditate. The longer you shift the more you heal.");
+		setDescription("Healing is a cleansing move for a ninja. Used by many to heal the mind but also to"
+				+ " heal the body. To use: shift while holding healing. The longer you shift the more you heal.");
 	}
 	
 	public void createMedItem(Player player, String prefix) {
@@ -74,7 +79,7 @@ public class Meditate extends MoveBase implements Listener {
 				return;
 			if (!player.getItemInHand().getItemMeta().getDisplayName().equals(getColorName()))
 				return;
-			if (plugin.isPlayerInGuardedRegion(player))
+			if (plugin.isInProtectedRegion(player))
 				return;
 			particles.put(player, new ParticleData(player.getUniqueId()));
 			if (med_cd.containsKey(player.getName())) {

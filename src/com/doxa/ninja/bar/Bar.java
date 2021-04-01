@@ -66,7 +66,7 @@ public class Bar {
 			cast(0, player);
 			chakra_map.put(player, 0d);
 			player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "" + ChatColor.BOLD + "Chakra Overloaded!"));
-			player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD));
+			player.damage(plugin.getDamage(MoveType.CHAKRA_OVERLOAD, player));
 		} else {
 			chakra_map.put(player, minus_amt);
 			cast(minus_amt, player);
